@@ -1,0 +1,2118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Sea Battle XO</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+
+    background:
+        linear-gradient(
+            to bottom,
+            #7edcff 0%,
+            #b9efff 35%,
+            #42b8df 36%,
+            #087ea8 100%
+        );
+
+    transition: background 0.8s ease;
+}
+
+/* =========================
+   STORM MODE
+========================= */
+
+body.storm {
+    background:
+        linear-gradient(
+            to bottom,
+            #394d70 0%,
+            #63718d 35%,
+            #28627d 36%,
+            #083c55 100%
+        );
+}
+
+/* =========================
+   SKY
+========================= */
+
+.sky {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+}
+
+/* Sun */
+
+.sun {
+    position: absolute;
+    top: 35px;
+    right: 80px;
+
+    width: 90px;
+    height: 90px;
+
+    background: #ffe36e;
+    border-radius: 50%;
+
+    box-shadow:
+        0 0 25px #ffe36e,
+        0 0 55px #fff3a0;
+
+    transition: 0.8s;
+}
+
+body.storm .sun {
+    opacity: 0.15;
+}
+
+/* Clouds */
+
+.cloud {
+    position: absolute;
+    background: white;
+    border-radius: 50px;
+    opacity: 0.85;
+
+    animation: cloudMove 35s linear infinite;
+}
+
+.cloud::before,
+.cloud::after {
+    content: "";
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+}
+
+.cloud::before {
+    width: 60px;
+    height: 60px;
+    top: -30px;
+    left: 25px;
+}
+
+.cloud::after {
+    width: 80px;
+    height: 80px;
+    top: -40px;
+    right: 20px;
+}
+
+.cloud1 {
+    width: 150px;
+    height: 45px;
+    top: 100px;
+    left: -200px;
+}
+
+.cloud2 {
+    width: 120px;
+    height: 40px;
+    top: 190px;
+    left: -300px;
+    animation-delay: 8s;
+}
+
+@keyframes cloudMove {
+    from {
+        transform: translateX(-100px);
+    }
+
+    to {
+        transform: translateX(130vw);
+    }
+}
+
+/* =========================
+   BIRDS
+========================= */
+
+.birds {
+    position: absolute;
+    top: 120px;
+    left: 10%;
+
+    font-size: 30px;
+
+    animation: birdFly 8s linear infinite;
+}
+
+@keyframes birdFly {
+    0% {
+        transform: translateX(-100px);
+    }
+
+    100% {
+        transform: translateX(110vw);
+    }
+}
+
+body.storm .birds {
+    opacity: 0;
+}
+
+/* =========================
+   CONTAINER
+========================= */
+
+.container {
+    position: relative;
+    z-index: 2;
+
+    width: min(700px, 94%);
+    margin: auto;
+    padding: 25px 0 40px;
+
+    text-align: center;
+}
+
+/* =========================
+   TITLE
+========================= */
+
+.title {
+    color: white;
+
+    font-size: clamp(32px, 7vw, 55px);
+    font-weight: 900;
+
+    text-shadow:
+        0 5px 0 #08739a,
+        0 8px 15px rgba(0,0,0,0.25);
+
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    color: white;
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+/* =========================
+   SCORE PANEL
+========================= */
+
+.info-panel {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+
+    margin-bottom: 18px;
+}
+
+.team {
+    padding: 10px 18px;
+    border-radius: 15px;
+
+    color: white;
+    font-weight: bold;
+
+    box-shadow: 0 5px 12px rgba(0,0,0,0.18);
+}
+
+.team-x {
+    background: #168cff;
+}
+
+.team-o {
+    background: #ff8c3b;
+}
+
+.turn {
+    background: white;
+    color: #075b78;
+
+    padding: 10px 18px;
+    border-radius: 15px;
+
+    font-weight: bold;
+
+    box-shadow: 0 5px 12px rgba(0,0,0,0.15);
+}
+
+/* =========================
+   SOUND BUTTON
+========================= */
+
+.sound-btn {
+    border: none;
+
+    background: white;
+    color: #075b78;
+
+    padding: 10px 15px;
+
+    border-radius: 15px;
+
+    cursor: pointer;
+
+    font-weight: bold;
+
+    box-shadow: 0 5px 12px rgba(0,0,0,0.15);
+
+    transition: 0.2s;
+}
+
+.sound-btn:hover {
+    transform: translateY(-2px);
+}
+
+/* =========================
+   BOARD
+========================= */
+
+.board {
+    width: min(500px, 90vw);
+
+    aspect-ratio: 1 / 1;
+
+    margin: auto;
+
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 12px;
+
+    padding: 12px;
+
+    background: rgba(255,255,255,0.25);
+
+    border-radius: 25px;
+
+    box-shadow:
+        0 15px 35px rgba(0,0,0,0.2),
+        inset 0 0 15px rgba(255,255,255,0.25);
+}
+
+/* =========================
+   CELLS
+========================= */
+
+.cell {
+    border: none;
+
+    border-radius: 20px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #dffaff,
+            #8bd8ee
+        );
+
+    box-shadow:
+        inset 0 -7px 0 rgba(0,100,140,0.15),
+        0 7px 12px rgba(0,0,0,0.18);
+
+    cursor: pointer;
+
+    font-size: clamp(55px, 12vw, 90px);
+
+    font-weight: 900;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    transition:
+        transform 0.2s,
+        background 0.2s;
+}
+
+.cell:hover:not(.taken) {
+    transform: scale(1.04);
+
+    background:
+        linear-gradient(
+            145deg,
+            #ffffff,
+            #b4efff
+        );
+}
+
+.cell:active:not(.taken) {
+    transform: scale(0.96);
+}
+
+.cell.taken {
+    cursor: default;
+}
+
+.cell.x {
+    color: #168cff;
+
+    text-shadow:
+        0 5px 0 #075b9e,
+        0 7px 15px rgba(0,0,0,0.2);
+
+    animation: appear 0.35s ease;
+}
+
+.cell.o {
+    color: #ff8c3b;
+
+    text-shadow:
+        0 5px 0 #b94d0d,
+        0 7px 15px rgba(0,0,0,0.2);
+
+    animation: appear 0.35s ease;
+}
+
+@keyframes appear {
+
+    0% {
+        transform: scale(0.2) rotate(-15deg);
+    }
+
+    70% {
+        transform: scale(1.15) rotate(5deg);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Winning cells */
+
+.cell.win {
+    animation: winCell 0.7s infinite alternate;
+}
+
+@keyframes winCell {
+
+    from {
+        transform: scale(1);
+        box-shadow:
+            0 0 10px white,
+            inset 0 -7px 0 rgba(0,100,140,0.15);
+    }
+
+    to {
+        transform: scale(1.08);
+        box-shadow:
+            0 0 35px #fff,
+            0 0 55px #ffe66d;
+    }
+}
+
+/* =========================
+   BUTTONS
+========================= */
+
+.bottom-buttons {
+    margin-top: 22px;
+
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.reset-btn {
+    border: none;
+
+    padding: 13px 25px;
+
+    border-radius: 18px;
+
+    background: #ffffff;
+
+    color: #075b78;
+
+    font-weight: 900;
+
+    font-size: 16px;
+
+    cursor: pointer;
+
+    box-shadow: 0 6px 15px rgba(0,0,0,0.18);
+
+    transition: 0.2s;
+}
+
+.reset-btn:hover {
+    transform: translateY(-3px);
+}
+
+/* =========================
+   MODAL
+========================= */
+
+.modal {
+    position: fixed;
+
+    inset: 0;
+
+    background: rgba(0,35,55,0.65);
+
+    backdrop-filter: blur(5px);
+
+    display: none;
+
+    justify-content: center;
+    align-items: center;
+
+    padding: 20px;
+
+    z-index: 10;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.question-box {
+    width: min(560px, 95vw);
+
+    background: white;
+
+    border-radius: 28px;
+
+    padding: 28px;
+
+    box-shadow:
+        0 20px 60px rgba(0,0,0,0.35);
+
+    animation: modalAppear 0.3s ease;
+}
+
+@keyframes modalAppear {
+
+    from {
+        transform: scale(0.7);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.question-title {
+    color: #087ea8;
+
+    font-size: 23px;
+
+    margin-bottom: 18px;
+
+    font-weight: 900;
+}
+
+.question {
+    font-size: 21px;
+
+    font-weight: bold;
+
+    color: #153f50;
+
+    margin-bottom: 20px;
+
+    line-height: 1.4;
+}
+
+.answers {
+    display: grid;
+
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 12px;
+}
+
+.answer {
+    border: 3px solid #9ddceb;
+
+    background: #effcff;
+
+    padding: 14px;
+
+    border-radius: 15px;
+
+    font-size: 17px;
+
+    font-weight: bold;
+
+    color: #075b78;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.answer:hover {
+    background: #c8f5ff;
+
+    transform: translateY(-2px);
+}
+
+.answer.correct {
+    background: #9af0bd;
+
+    border-color: #27ae60;
+}
+
+.answer.wrong {
+    background: #ffb0a9;
+
+    border-color: #e74c3c;
+}
+
+/* =========================
+   SPECIAL MODAL
+========================= */
+
+.special-icon {
+    font-size: 65px;
+
+    margin-bottom: 10px;
+}
+
+.special-title {
+    font-size: 30px;
+
+    font-weight: 900;
+
+    color: #087ea8;
+
+    margin-bottom: 10px;
+}
+
+.special-text {
+    color: #345;
+
+    font-size: 17px;
+
+    line-height: 1.5;
+
+    margin-bottom: 20px;
+}
+
+.continue-btn {
+    border: none;
+
+    background: #087ea8;
+
+    color: white;
+
+    padding: 13px 25px;
+
+    border-radius: 15px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+/* =========================
+   WIN MODAL
+========================= */
+
+.win-title {
+    font-size: 38px;
+
+    font-weight: 900;
+
+    color: #087ea8;
+
+    margin-bottom: 12px;
+}
+
+.win-message {
+    font-size: 20px;
+
+    color: #345;
+
+    margin-bottom: 20px;
+}
+
+/* =========================
+   STORM EFFECT
+========================= */
+
+.storm-cloud {
+    position: fixed;
+
+    inset: 0;
+
+    pointer-events: none;
+
+    z-index: 3;
+
+    display: none;
+
+    background:
+        radial-gradient(
+            circle at 20% 20%,
+            rgba(255,255,255,0.15),
+            transparent 20%
+        ),
+        radial-gradient(
+            circle at 80% 30%,
+            rgba(255,255,255,0.1),
+            transparent 25%
+        );
+
+    animation: stormFlash 1.5s infinite;
+}
+
+body.storm .storm-cloud {
+    display: block;
+}
+
+@keyframes stormFlash {
+
+    0%, 85%, 100% {
+        opacity: 0;
+    }
+
+    88% {
+        opacity: 0.4;
+    }
+
+    90% {
+        opacity: 0;
+    }
+}
+
+/* Rain */
+
+.rain {
+    position: fixed;
+
+    inset: 0;
+
+    pointer-events: none;
+
+    z-index: 2;
+
+    display: none;
+
+    background-image:
+        repeating-linear-gradient(
+            110deg,
+            transparent 0,
+            transparent 12px,
+            rgba(255,255,255,0.18) 13px,
+            transparent 14px
+        );
+
+    background-size: 40px 40px;
+
+    animation: rainMove 0.5s linear infinite;
+}
+
+body.storm .rain {
+    display: block;
+}
+
+@keyframes rainMove {
+
+    from {
+        background-position: 0 0;
+    }
+
+    to {
+        background-position: -40px 80px;
+    }
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 500px) {
+
+    .answers {
+        grid-template-columns: 1fr;
+    }
+
+    .board {
+        gap: 8px;
+        padding: 8px;
+    }
+
+    .cell {
+        border-radius: 15px;
+    }
+
+    .question-box {
+        padding: 22px;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- SKY -->
+
+<div class="sky">
+
+    <div class="sun"></div>
+
+    <div class="cloud cloud1"></div>
+
+    <div class="cloud cloud2"></div>
+
+    <div class="birds">
+        🐦 🐦
+    </div>
+
+</div>
+
+<div class="storm-cloud"></div>
+
+<div class="rain"></div>
+
+
+<!-- MAIN -->
+
+<div class="container">
+
+    <div class="title">
+        🌊 SEA BATTLE XO
+    </div>
+
+    <div class="subtitle">
+        Answer correctly and conquer the sea!
+    </div>
+
+
+    <!-- INFO -->
+
+    <div class="info-panel">
+
+        <div class="team team-x">
+            ❌ TEAM X:
+            <span id="scoreX">0</span>
+        </div>
+
+        <div class="turn">
+            🎯 Turn:
+            <span id="turnDisplay">X</span>
+        </div>
+
+        <div class="team team-o">
+            ⭕ TEAM O:
+            <span id="scoreO">0</span>
+        </div>
+
+        <button
+            class="sound-btn"
+            id="soundBtn"
+            onclick="toggleSound()"
+        >
+            🔊 Sound ON
+        </button>
+
+    </div>
+
+
+    <!-- BOARD -->
+
+    <div class="board" id="board">
+
+        <button class="cell" data-index="0"></button>
+        <button class="cell" data-index="1"></button>
+        <button class="cell" data-index="2"></button>
+
+        <button class="cell" data-index="3"></button>
+        <button class="cell" data-index="4"></button>
+        <button class="cell" data-index="5"></button>
+
+        <button class="cell" data-index="6"></button>
+        <button class="cell" data-index="7"></button>
+        <button class="cell" data-index="8"></button>
+
+    </div>
+
+
+    <!-- RESET -->
+
+    <div class="bottom-buttons">
+
+        <button
+            class="reset-btn"
+            onclick="resetGame()"
+        >
+            🔄 New Game
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- QUESTION MODAL -->
+
+<div
+    class="modal"
+    id="questionModal"
+>
+
+    <div class="question-box">
+
+        <div class="question-title">
+            🌊 Preposition Challenge
+        </div>
+
+        <div
+            class="question"
+            id="questionText"
+        ></div>
+
+        <div
+            class="answers"
+            id="answers"
+        ></div>
+
+    </div>
+
+</div>
+
+
+<!-- SPECIAL MODAL -->
+
+<div
+    class="modal"
+    id="specialModal"
+>
+
+    <div class="question-box">
+
+        <div
+            class="special-icon"
+            id="specialIcon"
+        >
+            🍀
+        </div>
+
+        <div
+            class="special-title"
+            id="specialTitle"
+        >
+            Lucky!
+        </div>
+
+        <div
+            class="special-text"
+            id="specialText"
+        ></div>
+
+        <button
+            class="continue-btn"
+            onclick="closeSpecial()"
+        >
+            Continue →
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- WIN MODAL -->
+
+<div
+    class="modal"
+    id="winModal"
+>
+
+    <div class="question-box">
+
+        <div class="special-icon">
+            🏆
+        </div>
+
+        <div
+            class="win-title"
+            id="winTitle"
+        >
+            TEAM X WINS!
+        </div>
+
+        <div
+            class="win-message"
+            id="winMessage"
+        >
+            Great job!
+        </div>
+
+        <button
+            class="continue-btn"
+            onclick="resetGame()"
+        >
+            🔄 Play Again
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   GAME VARIABLES
+===================================================== */
+
+let board = ["", "", "", "", "", "", "", ""];
+
+let currentPlayer = "X";
+
+let gameOver = false;
+
+let selectedCell = null;
+
+let soundEnabled = true;
+
+let audioContext = null;
+
+
+/* =====================================================
+   QUESTIONS
+   You can replace these with your own questions.
+===================================================== */
+
+const questions = [
+
+    {
+        question: "The book is ___ the table.",
+        answers: ["on", "in", "at", "to"],
+        correct: 0
+    },
+
+    {
+        question: "She is sitting ___ the classroom.",
+        answers: ["on", "in", "at", "to"],
+        correct: 1
+    },
+
+    {
+        question: "We go to school ___ Monday.",
+        answers: ["in", "on", "at", "from"],
+        correct: 1
+    },
+
+    {
+        question: "He arrived ___ 7 o'clock.",
+        answers: ["on", "in", "at", "by"],
+        correct: 2
+    },
+
+    {
+        question: "The cat is hiding ___ the bed.",
+        answers: ["under", "at", "on", "to"],
+        correct: 0
+    },
+
+    {
+        question: "She walked ___ the room.",
+        answers: ["into", "on", "at", "by"],
+        correct: 0
+    },
+
+    {
+        question: "The picture is ___ the wall.",
+        answers: ["in", "on", "at", "to"],
+        correct: 1
+    },
+
+    {
+        question: "My birthday is ___ September.",
+        answers: ["on", "at", "in", "by"],
+        correct: 2
+    },
+
+    {
+        question: "The students are ___ the teacher.",
+        answers: ["in front of", "on", "at", "to"],
+        correct: 0
+    },
+
+    {
+        question: "The ball is ___ the box.",
+        answers: ["between", "inside", "at", "on"],
+        correct: 1
+    }
+
+];
+
+
+/* =====================================================
+   SPECIAL CELLS
+   4 hidden cells:
+   2 Lucky
+   2 Unlucky
+===================================================== */
+
+let specialCells = {};
+
+
+/* =====================================================
+   AUDIO SYSTEM
+===================================================== */
+
+function initAudio() {
+
+    if (!audioContext) {
+
+        audioContext =
+            new (
+                window.AudioContext ||
+                window.webkitAudioContext
+            )();
+
+    }
+
+    if (audioContext.state === "suspended") {
+
+        audioContext.resume();
+
+    }
+
+}
+
+
+/* Basic tone */
+
+function playTone(
+    frequency,
+    duration,
+    type = "sine",
+    volume = 0.06,
+    delay = 0
+) {
+
+    if (!soundEnabled) return;
+
+    initAudio();
+
+    const oscillator =
+        audioContext.createOscillator();
+
+    const gain =
+        audioContext.createGain();
+
+    const now =
+        audioContext.currentTime + delay;
+
+    oscillator.type = type;
+
+    oscillator.frequency.setValueAtTime(
+        frequency,
+        now
+    );
+
+    gain.gain.setValueAtTime(
+        0.001,
+        now
+    );
+
+    gain.gain.exponentialRampToValueAtTime(
+        volume,
+        now + 0.02
+    );
+
+    gain.gain.exponentialRampToValueAtTime(
+        0.001,
+        now + duration
+    );
+
+    oscillator
+        .connect(gain)
+        .connect(audioContext.destination);
+
+    oscillator.start(now);
+
+    oscillator.stop(
+        now + duration + 0.03
+    );
+
+}
+
+
+/* Click */
+
+function playClickSound() {
+
+    playTone(
+        600,
+        0.12,
+        "sine",
+        0.04
+    );
+
+}
+
+
+/* Correct */
+
+function playCorrectSound() {
+
+    playTone(
+        660,
+        0.18,
+        "sine",
+        0.05
+    );
+
+    playTone(
+        880,
+        0.25,
+        "sine",
+        0.05,
+        0.12
+    );
+
+}
+
+
+/* Wrong */
+
+function playWrongSound() {
+
+    playTone(
+        300,
+        0.25,
+        "sawtooth",
+        0.045
+    );
+
+    playTone(
+        180,
+        0.4,
+        "sawtooth",
+        0.04,
+        0.12
+    );
+
+}
+
+
+/* Lucky */
+
+function playLuckySound() {
+
+    playTone(
+        700,
+        0.15,
+        "sine",
+        0.045
+    );
+
+    playTone(
+        900,
+        0.18,
+        "sine",
+        0.045,
+        0.12
+    );
+
+    playTone(
+        1200,
+        0.3,
+        "sine",
+        0.04,
+        0.24
+    );
+
+}
+
+
+/* Unlucky */
+
+function playUnluckySound() {
+
+    playTone(
+        250,
+        0.25,
+        "triangle",
+        0.05
+    );
+
+    playTone(
+        160,
+        0.4,
+        "triangle",
+        0.04,
+        0.15
+    );
+
+}
+
+
+/* Win */
+
+function playWinSound() {
+
+    playTone(
+        523,
+        0.2,
+        "sine",
+        0.05
+    );
+
+    playTone(
+        659,
+        0.2,
+        "sine",
+        0.05,
+        0.18
+    );
+
+    playTone(
+        784,
+        0.25,
+        "sine",
+        0.05,
+        0.36
+    );
+
+    playTone(
+        1046,
+        0.5,
+        "sine",
+        0.06,
+        0.54
+    );
+
+}
+
+
+/* Reset */
+
+function playResetSound() {
+
+    playTone(
+        400,
+        0.15,
+        "sine",
+        0.04
+    );
+
+    playTone(
+        600,
+        0.2,
+        "sine",
+        0.04,
+        0.1
+    );
+
+}
+
+
+/* Thunder */
+
+function playThunder() {
+
+    if (!soundEnabled) return;
+
+    initAudio();
+
+    const duration = 1.1;
+
+    const buffer =
+        audioContext.createBuffer(
+            1,
+            audioContext.sampleRate * duration,
+            audioContext.sampleRate
+        );
+
+    const data =
+        buffer.getChannelData(0);
+
+    for (
+        let i = 0;
+        i < data.length;
+        i++
+    ) {
+
+        const fade =
+            1 - i / data.length;
+
+        data[i] =
+            (Math.random() * 2 - 1)
+            * fade;
+
+    }
+
+    const source =
+        audioContext.createBufferSource();
+
+    const filter =
+        audioContext.createBiquadFilter();
+
+    const gain =
+        audioContext.createGain();
+
+    filter.type = "lowpass";
+
+    filter.frequency.value = 700;
+
+    gain.gain.setValueAtTime(
+        0.001,
+        audioContext.currentTime
+    );
+
+    gain.gain.exponentialRampToValueAtTime(
+        0.13,
+        audioContext.currentTime + 0.03
+    );
+
+    gain.gain.exponentialRampToValueAtTime(
+        0.001,
+        audioContext.currentTime + duration
+    );
+
+    source.buffer = buffer;
+
+    source
+        .connect(filter)
+        .connect(gain)
+        .connect(audioContext.destination);
+
+    source.start();
+
+}
+
+
+/* Toggle sound */
+
+function toggleSound() {
+
+    soundEnabled = !soundEnabled;
+
+    const button =
+        document.getElementById("soundBtn");
+
+    if (soundEnabled) {
+
+        button.textContent =
+            "🔊 Sound ON";
+
+        playClickSound();
+
+    } else {
+
+        button.textContent =
+            "🔇 Sound OFF";
+
+    }
+
+}
+
+
+/* =====================================================
+   CREATE RANDOM SPECIAL CELLS
+===================================================== */
+
+function createSpecialCells() {
+
+    specialCells = {};
+
+    const positions =
+        [...Array(9).keys()];
+
+    positions.sort(
+        () => Math.random() - 0.5
+    );
+
+    specialCells[positions[0]] =
+        "lucky";
+
+    specialCells[positions[1]] =
+        "lucky";
+
+    specialCells[positions[2]] =
+        "unlucky";
+
+    specialCells[positions[3]] =
+        "unlucky";
+
+}
+
+
+/* =====================================================
+   CELL CLICK
+===================================================== */
+
+document
+    .querySelectorAll(".cell")
+    .forEach(cell => {
+
+        cell.addEventListener(
+            "click",
+            () => {
+
+                initAudio();
+
+                if (gameOver) return;
+
+                const index =
+                    Number(
+                        cell.dataset.index
+                    );
+
+                if (board[index] !== "") {
+
+                    return;
+
+                }
+
+                playClickSound();
+
+                selectedCell = index;
+
+                /* SPECIAL CELL */
+
+                if (
+                    specialCells[index]
+                ) {
+
+                    showSpecial(
+                        specialCells[index]
+                    );
+
+                    return;
+
+                }
+
+                /* NORMAL QUESTION */
+
+                showQuestion(index);
+
+            }
+        );
+
+    });
+
+
+/* =====================================================
+   SHOW QUESTION
+===================================================== */
+
+function showQuestion(index) {
+
+    const modal =
+        document.getElementById(
+            "questionModal"
+        );
+
+    const question =
+        questions[
+            index % questions.length
+        ];
+
+    document.getElementById(
+        "questionText"
+    ).textContent =
+        question.question;
+
+    const answers =
+        document.getElementById(
+            "answers"
+        );
+
+    answers.innerHTML = "";
+
+    question.answers.forEach(
+        (answer, i) => {
+
+            const button =
+                document.createElement(
+                    "button"
+                );
+
+            button.className =
+                "answer";
+
+            button.textContent =
+                answer;
+
+            button.onclick =
+                () => checkAnswer(
+                    i === question.correct,
+                    button
+                );
+
+            answers.appendChild(
+                button
+            );
+
+        }
+    );
+
+    modal.classList.add("show");
+
+}
+
+
+/* =====================================================
+   CHECK ANSWER
+===================================================== */
+
+function checkAnswer(
+    isCorrect,
+    clickedButton
+) {
+
+    const buttons =
+        document.querySelectorAll(
+            ".answer"
+        );
+
+    buttons.forEach(
+        button => {
+
+            button.disabled = true;
+
+        }
+    );
+
+    if (isCorrect) {
+
+        clickedButton.classList.add(
+            "correct"
+        );
+
+        playCorrectSound();
+
+        removeStorm();
+
+        setTimeout(
+            () => {
+
+                closeQuestion();
+
+                placeSymbol(
+                    selectedCell,
+                    currentPlayer
+                );
+
+            },
+            600
+        );
+
+    } else {
+
+        clickedButton.classList.add(
+            "wrong"
+        );
+
+        playWrongSound();
+
+        playThunder();
+
+        setStorm();
+
+        const opponent =
+            currentPlayer === "X"
+                ? "O"
+                : "X";
+
+        setTimeout(
+            () => {
+
+                closeQuestion();
+
+                placeSymbol(
+                    selectedCell,
+                    opponent
+                );
+
+            },
+            700
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   CLOSE QUESTION
+===================================================== */
+
+function closeQuestion() {
+
+    document
+        .getElementById(
+            "questionModal"
+        )
+        .classList.remove(
+            "show"
+        );
+
+}
+
+
+/* =====================================================
+   SPECIAL EVENTS
+===================================================== */
+
+function showSpecial(type) {
+
+    const modal =
+        document.getElementById(
+            "specialModal"
+        );
+
+    const icon =
+        document.getElementById(
+            "specialIcon"
+        );
+
+    const title =
+        document.getElementById(
+            "specialTitle"
+        );
+
+    const text =
+        document.getElementById(
+            "specialText"
+        );
+
+    if (type === "lucky") {
+
+        icon.textContent = "🍀";
+
+        title.textContent =
+            "LUCKY CELL!";
+
+        text.textContent =
+            `Lucky! Team ${currentPlayer} gets this cell automatically. No question needed!`;
+
+        playLuckySound();
+
+    } else {
+
+        icon.textContent = "⚡";
+
+        title.textContent =
+            "UNLUCKY CELL!";
+
+        const opponent =
+            currentPlayer === "X"
+                ? "O"
+                : "X";
+
+        text.textContent =
+            `Oh no! This cell belongs to Team ${opponent}!`;
+
+        playUnluckySound();
+
+    }
+
+    modal.classList.add("show");
+
+}
+
+
+/* =====================================================
+   CLOSE SPECIAL
+===================================================== */
+
+function closeSpecial() {
+
+    document
+        .getElementById(
+            "specialModal"
+        )
+        .classList.remove(
+            "show"
+        );
+
+    const type =
+        specialCells[selectedCell];
+
+    if (type === "lucky") {
+
+        placeSymbol(
+            selectedCell,
+            currentPlayer
+        );
+
+    } else {
+
+        const opponent =
+            currentPlayer === "X"
+                ? "O"
+                : "X";
+
+        placeSymbol(
+            selectedCell,
+            opponent
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   PLACE SYMBOL
+===================================================== */
+
+function placeSymbol(
+    index,
+    player
+) {
+
+    if (gameOver) return;
+
+    board[index] = player;
+
+    const cell =
+        document.querySelector(
+            `.cell[data-index="${index}"]`
+        );
+
+    cell.textContent =
+        player === "X"
+            ? "X"
+            : "O";
+
+    cell.classList.add(
+        "taken",
+        player.toLowerCase()
+    );
+
+    updateScore();
+
+    /* CHECK WIN */
+
+    const winningLine =
+        checkWinner();
+
+    if (winningLine) {
+
+        gameOver = true;
+
+        winningLine.forEach(
+            i => {
+
+                document
+                    .querySelector(
+                        `.cell[data-index="${i}"]`
+                    )
+                    .classList.add(
+                        "win"
+                    );
+
+            }
+        );
+
+        setTimeout(
+            () => showWinner(player),
+            500
+        );
+
+        return;
+
+    }
+
+    /* CHECK DRAW */
+
+    if (
+        board.every(
+            cell => cell !== ""
+        )
+    ) {
+
+        gameOver = true;
+
+        setTimeout(
+            showDraw,
+            400
+        );
+
+        return;
+
+    }
+
+    /* NEXT TURN */
+
+    currentPlayer =
+        currentPlayer === "X"
+            ? "O"
+            : "X";
+
+    updateTurn();
+
+}
+
+
+/* =====================================================
+   CHECK WINNER
+===================================================== */
+
+function checkWinner() {
+
+    const lines = [
+
+        [0,1,2],
+        [3,4,5],
+        [6,7,8],
+
+        [0,3,6],
+        [1,4,7],
+        [2,5,8],
+
+        [0,4,8],
+        [2,4,6]
+
+    ];
+
+    for (
+        const line of lines
+    ) {
+
+        const [a,b,c] = line;
+
+        if (
+            board[a] &&
+            board[a] === board[b] &&
+            board[a] === board[c]
+        ) {
+
+            return line;
+
+        }
+
+    }
+
+    return null;
+
+}
+
+
+/* =====================================================
+   UPDATE SCORE
+===================================================== */
+
+function updateScore() {
+
+    const scoreX =
+        board.filter(
+            x => x === "X"
+        ).length;
+
+    const scoreO =
+        board.filter(
+            x => x === "O"
+        ).length;
+
+    document.getElementById(
+        "scoreX"
+    ).textContent = scoreX;
+
+    document.getElementById(
+        "scoreO"
+    ).textContent = scoreO;
+
+}
+
+
+/* =====================================================
+   UPDATE TURN
+===================================================== */
+
+function updateTurn() {
+
+    document.getElementById(
+        "turnDisplay"
+    ).textContent =
+        currentPlayer;
+
+}
+
+
+/* =====================================================
+   STORM
+===================================================== */
+
+function setStorm() {
+
+    document.body.classList.add(
+        "storm"
+    );
+
+}
+
+
+/* Remove storm */
+
+function removeStorm() {
+
+    document.body.classList.remove(
+        "storm"
+    );
+
+}
+
+
+/* =====================================================
+   WINNER
+===================================================== */
+
+function showWinner(player) {
+
+    playWinSound();
+
+    document.getElementById(
+        "winTitle"
+    ).textContent =
+        `🏆 TEAM ${player} WINS!`;
+
+    document.getElementById(
+        "winMessage"
+    ).textContent =
+        `Amazing! Team ${player} conquered the sea! 🌊`;
+
+    document
+        .getElementById(
+            "winModal"
+        )
+        .classList.add(
+            "show"
+        );
+
+}
+
+
+/* =====================================================
+   DRAW
+===================================================== */
+
+function showDraw() {
+
+    playTone(
+        500,
+        0.25,
+        "triangle",
+        0.04
+    );
+
+    document.getElementById(
+        "winTitle"
+    ).textContent =
+        "🤝 IT'S A DRAW!";
+
+    document.getElementById(
+        "winMessage"
+    ).textContent =
+        "The sea battle ends in a tie! 🌊";
+
+    document
+        .getElementById(
+            "winModal"
+        )
+        .classList.add(
+            "show"
+        );
+
+}
+
+
+/* =====================================================
+   RESET GAME
+===================================================== */
+
+function resetGame() {
+
+    playResetSound();
+
+    board =
+        ["", "", "", "", "", "", "", ""];
+
+    currentPlayer = "X";
+
+    gameOver = false;
+
+    selectedCell = null;
+
+    createSpecialCells();
+
+    removeStorm();
+
+    document
+        .getElementById(
+            "winModal"
+        )
+        .classList.remove(
+            "show"
+        );
+
+    document
+        .getElementById(
+            "specialModal"
+        )
+        .classList.remove(
+            "show"
+        );
+
+    document
+        .getElementById(
+            "questionModal"
+        )
+        .classList.remove(
+            "show"
+        );
+
+    document
+        .querySelectorAll(".cell")
+        .forEach(
+            cell => {
+
+                cell.textContent = "";
+
+                cell.className =
+                    "cell";
+
+            }
+        );
+
+    updateScore();
+
+    updateTurn();
+
+}
+
+
+/* =====================================================
+   START GAME
+===================================================== */
+
+createSpecialCells();
+
+updateScore();
+
+updateTurn();
+
+</script>
+
+</body>
+</html>
